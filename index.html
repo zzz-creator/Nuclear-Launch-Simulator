@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICBM Launch Control System - Training Simulator</title>
+    <title>Nuclear Launch Control System - Training Simulator</title>
     <meta name="description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures for crisis response training">
     
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="ICBM Launch Control System - Training Simulator">
+    <meta property="og:title" content="Nuclear Launch Control System - Training Simulator">
     <meta property="og:description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures">
     <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=630&fit=crop">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ICBM Launch Control System - Training Simulator">
+    <meta name="twitter:title" content="Nuclear Launch Control System - Training Simulator">
     <meta name="twitter:description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures">
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=630&fit=crop">
     
@@ -623,6 +623,26 @@
             opacity: 0.7;
         }
         
+        .admin-logout-btn {
+            position: absolute;
+            top: var(--spacing-lg);
+            right: 60px;
+            background: transparent;
+            border: 1px solid var(--admin-border);
+            color: var(--admin-text);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .admin-logout-btn:hover {
+            background: var(--admin-border);
+        }
+        
         .admin-close-btn {
             position: absolute;
             top: var(--spacing-lg);
@@ -746,13 +766,13 @@
          SYSTEM HEADER
          ============================================ -->
     <header class="system-header">
-        <div class="system-title">ICBM LAUNCH CONTROL SYSTEM</div>
+        <div class="system-title" id="system-title">STRATEGIC COMMAND SIMULATOR v2.4.1</div>
         <div class="system-id">SIM-TRAIN-2026 | SECTOR ALPHA-7 | RUN: <span id="run-id">--</span></div>
         <div class="admin-access-indicator" id="admin-indicator">ADMIN ACCESS ACTIVE</div>
     </header>
     
-    <div class="disclaimer">
-        ⚠️ TRAINING SIMULATOR ONLY - FICTIONAL SYSTEM FOR EDUCATIONAL PURPOSES - NO REAL LAUNCH CAPABILITY ⚠️
+    <div class="disclaimer" id="system-classification">
+        CLASSIFICATION: UNCLASSIFIED // FOR TRAINING USE ONLY
     </div>
     
     <!-- ============================================
@@ -804,14 +824,14 @@
         <section>
             <!-- Authentication Panel -->
             <div class="panel" style="margin-bottom: 16px;">
-                <div class="panel-header">AUTHENTICATION</div>
+                <div class="panel-header">KEY AUTHENTICATION</div>
                 <div class="panel-body">
                     <div class="input-group">
-                        <label class="input-label">OPERATOR A - ACCESS CODE</label>
+                        <label class="input-label">OPERATOR A - KEY AUTH</label>
                         <input type="password" class="input-field" id="auth-operator-a" placeholder="Enter 6-digit code" maxlength="6" disabled>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">OPERATOR B - ACCESS CODE</label>
+                        <label class="input-label">OPERATOR B - KEY AUTH</label>
                         <input type="password" class="input-field" id="auth-operator-b" placeholder="Enter 6-digit code" maxlength="6" disabled>
                     </div>
                     <div class="input-group">
@@ -871,6 +891,7 @@
         <div class="admin-panel-header">
             <div class="admin-panel-title">🔐 ADMINISTRATOR CONSOLE</div>
             <div class="admin-panel-subtitle">Supervisory Runtime Control</div>
+            <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
             <button class="admin-close-btn" onclick="closeAdminPanel()">×</button>
         </div>
         
@@ -879,6 +900,67 @@
             <div class="admin-section-title">📊 Run Context Overview</div>
             <div class="admin-state-grid" id="admin-run-context">
                 <!-- Dynamically populated from RunContext object -->
+            </div>
+        </div>
+        
+        <!-- Training Code Configuration -->
+        <div class="admin-section">
+            <div class="admin-section-title">🔑 Training Code Configuration</div>
+            <div class="admin-warning">
+                Set valid authentication codes for training scenarios
+            </div>
+            <div class="admin-control-group">
+                <div class="input-group">
+                    <label class="input-label">Operator A Code (6 digits)</label>
+                    <input type="text" class="input-field" id="admin-code-a" maxlength="6" placeholder="Current: 123456">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Operator B Code (6 digits)</label>
+                    <input type="text" class="input-field" id="admin-code-b" maxlength="6" placeholder="Current: 654321">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Command Authorization (8 chars)</label>
+                    <input type="text" class="input-field" id="admin-code-cmd" maxlength="8" placeholder="Current: ALPHA001">
+                </div>
+                <button class="btn btn-admin btn-sm" onclick="adminUpdateCodes()">
+                    Update Training Codes
+                </button>
+            </div>
+        </div>
+        
+        <!-- System Customization -->
+        <div class="admin-section">
+            <div class="admin-section-title">🎨 System Customization</div>
+            <div class="admin-control-group">
+                <div class="input-group">
+                    <label class="input-label">System Title</label>
+                    <input type="text" class="input-field" id="admin-custom-title" placeholder="Current title">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Classification Banner</label>
+                    <input type="text" class="input-field" id="admin-custom-classification" placeholder="Current classification">
+                </div>
+                <button class="btn btn-admin btn-sm" onclick="adminUpdateCustomization()">
+                    Update System Headers
+                </button>
+            </div>
+        </div>
+        
+        <!-- Security Settings -->
+        <div class="admin-section">
+            <div class="admin-section-title">🔐 Security Settings</div>
+            <div class="admin-control-group">
+                <div class="input-group">
+                    <label class="input-label">New Admin Password</label>
+                    <input type="password" class="input-field" id="admin-new-password" placeholder="Enter new password">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Confirm Password</label>
+                    <input type="password" class="input-field" id="admin-confirm-password" placeholder="Confirm new password">
+                </div>
+                <button class="btn btn-admin btn-sm" onclick="adminChangePassword()">
+                    Change Admin Password
+                </button>
             </div>
         </div>
         
@@ -1006,8 +1088,8 @@
                     <label class="input-label">ADMIN PASSPHRASE</label>
                     <input type="password" class="input-field" id="admin-passphrase" placeholder="Enter admin passphrase">
                 </div>
-                <p style="margin-top: 16px; font-size: 12px; color: var(--text-dim);">
-                    Training mode: Use passphrase <code style="color: var(--admin-primary);">SUPERVISOR</code>
+                <p style="margin-top: 16px; font-size: 12px; color: var(--text-dim);" id="admin-passphrase-hint">
+                    <!-- Dynamically populated -->
                 </p>
             </div>
             <div class="modal-actions">
@@ -1054,9 +1136,21 @@
             
             // Administrative state
             adminAuthenticated: false,
+            adminPassword: localStorage.getItem('adminPassword') || 'SUPERVISOR',
             systemLocked: false,
             lockType: null, // 'soft' or 'hard'
             systemHold: false,
+            
+            // Training code configuration
+            validCodes: {
+                operatorA: localStorage.getItem('codeOperatorA') || '123456',
+                operatorB: localStorage.getItem('codeOperatorB') || '654321',
+                command: localStorage.getItem('codeCommand') || 'ALPHA001'
+            },
+            
+            // System customization
+            customTitle: localStorage.getItem('customTitle') || 'STRATEGIC COMMAND SIMULATOR v2.4.1',
+            customClassification: localStorage.getItem('customClassification') || 'CLASSIFICATION: UNCLASSIFIED // FOR TRAINING USE ONLY',
             
             // Fault injection state
             faultInjected: false,
@@ -1103,7 +1197,8 @@
         
         function logEvent(level, message, isAdminAction = false) {
             const logContainer = document.getElementById('event-log');
-            const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, fractionalSecondDigits: 3 });
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '.' + now.getMilliseconds().toString().padStart(3, '0');
             
             // Append to immutable log
             const logRecord = {
@@ -1323,7 +1418,7 @@
                             if (RunContext.adminForcedOutcome || RunContext.faultInjected) {
                                 logEvent('warning', 'Diagnostics complete with warnings - System operational with degraded subsystems');
                             } else {
-                                logEvent('success', 'All systems nominal - Ready for authentication');
+                                logEvent('success', 'All systems nominal - Ready for key authentication');
                             }
                         } else {
                             logEvent('error', 'Diagnostics failed - System not operational');
@@ -1364,23 +1459,39 @@
             const operatorB = document.getElementById('auth-operator-b').value;
             const commandCode = document.getElementById('auth-command').value;
             
-            logEvent('info', 'Authentication sequence initiated');
+            logEvent('info', 'Key authentication sequence initiated');
             RunContext.current_step = 3;
             updateAdminRunContext();
             
             // Validation checks
             if (operatorA.length !== 6) {
-                logEvent('error', 'Operator A authentication failed - Invalid code length');
+                logEvent('error', 'Operator A key auth failed - Invalid code length');
                 return;
             }
             
             if (operatorB.length !== 6) {
-                logEvent('error', 'Operator B authentication failed - Invalid code length');
+                logEvent('error', 'Operator B key auth failed - Invalid code length');
                 return;
             }
             
             if (commandCode.length !== 8) {
                 logEvent('error', 'Command authorization failed - Invalid code length');
+                return;
+            }
+            
+            // Validate against training codes
+            if (operatorA !== RunContext.validCodes.operatorA) {
+                logEvent('error', 'Operator A key auth failed - Invalid code');
+                return;
+            }
+            
+            if (operatorB !== RunContext.validCodes.operatorB) {
+                logEvent('error', 'Operator B key auth failed - Invalid code');
+                return;
+            }
+            
+            if (commandCode !== RunContext.validCodes.command) {
+                logEvent('error', 'Command authorization failed - Invalid code');
                 return;
             }
             
@@ -1391,9 +1502,9 @@
             setTimeout(() => {
                 RunContext.authenticated = true;
                 
-                logEvent('success', 'Operator A authenticated - Access granted');
+                logEvent('success', 'Operator A key authenticated - Access granted');
                 setTimeout(() => {
-                    logEvent('success', 'Operator B authenticated - Access granted');
+                    logEvent('success', 'Operator B key authenticated - Access granted');
                 }, applyDelay(800));
                 
                 setTimeout(() => {
@@ -1571,6 +1682,15 @@
         function openAdminAuth() {
             document.getElementById('modal-admin-auth').style.display = 'flex';
             document.getElementById('admin-passphrase').value = '';
+            
+            // Update hint based on whether password is default
+            const hint = document.getElementById('admin-passphrase-hint');
+            if (RunContext.adminPassword === 'SUPERVISOR') {
+                hint.innerHTML = 'Training mode: Use default passphrase <code style="color: var(--admin-primary);">SUPERVISOR</code>';
+            } else {
+                hint.innerHTML = 'Enter your admin passphrase';
+            }
+            
             document.getElementById('admin-passphrase').focus();
         }
         
@@ -1581,8 +1701,8 @@
         function submitAdminAuth() {
             const passphrase = document.getElementById('admin-passphrase').value;
             
-            // Training mode: Accept "SUPERVISOR" as valid passphrase
-            if (passphrase === 'SUPERVISOR') {
+            // Check against stored admin password
+            if (passphrase === RunContext.adminPassword) {
                 RunContext.adminAuthenticated = true;
                 document.getElementById('modal-admin-auth').style.display = 'none';
                 document.getElementById('admin-panel').classList.add('open');
@@ -1600,6 +1720,18 @@
         function closeAdminPanel() {
             document.getElementById('admin-panel').classList.remove('open');
             logEvent('admin', 'Administrator console closed', true);
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Logout
+           ============================================ */
+        
+        function adminLogout() {
+            RunContext.adminAuthenticated = false;
+            document.getElementById('admin-panel').classList.remove('open');
+            document.getElementById('admin-indicator').classList.remove('active');
+            
+            logEvent('admin', 'Administrator logged out', true);
         }
         
         /* ============================================
@@ -1625,7 +1757,10 @@
                 'Admin Outcome': RunContext.adminForcedOutcome || 'NONE',
                 'Delay Mult.': RunContext.delayMultiplier.toFixed(1) + 'x',
                 'Latency': RunContext.latencyEnabled ? 'ON' : 'OFF',
-                'Abort Window': RunContext.countdownAbortable ? 'OPEN' : 'CLOSED'
+                'Abort Window': RunContext.countdownAbortable ? 'OPEN' : 'CLOSED',
+                'Code A': RunContext.validCodes.operatorA,
+                'Code B': RunContext.validCodes.operatorB,
+                'Cmd Code': RunContext.validCodes.command
             };
             
             container.innerHTML = '';
@@ -1642,6 +1777,126 @@
             // Update step display
             document.getElementById('admin-current-step').textContent = RunContext.current_step;
             document.getElementById('admin-hold-status').textContent = RunContext.systemHold ? 'ACTIVE' : 'NORMAL';
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Training Code Management
+           ============================================ */
+        
+        function adminUpdateCodes() {
+            const codeA = document.getElementById('admin-code-a').value;
+            const codeB = document.getElementById('admin-code-b').value;
+            const codeCmd = document.getElementById('admin-code-cmd').value;
+            
+            let updated = false;
+            
+            if (codeA && codeA.length === 6) {
+                RunContext.validCodes.operatorA = codeA;
+                localStorage.setItem('codeOperatorA', codeA);
+                logEvent('admin', `Operator A training code updated to: ${codeA}`, true);
+                updated = true;
+            }
+            
+            if (codeB && codeB.length === 6) {
+                RunContext.validCodes.operatorB = codeB;
+                localStorage.setItem('codeOperatorB', codeB);
+                logEvent('admin', `Operator B training code updated to: ${codeB}`, true);
+                updated = true;
+            }
+            
+            if (codeCmd && codeCmd.length === 8) {
+                RunContext.validCodes.command = codeCmd;
+                localStorage.setItem('codeCommand', codeCmd);
+                logEvent('admin', `Command authorization code updated to: ${codeCmd}`, true);
+                updated = true;
+            }
+            
+            if (updated) {
+                // Clear input fields
+                document.getElementById('admin-code-a').value = '';
+                document.getElementById('admin-code-b').value = '';
+                document.getElementById('admin-code-cmd').value = '';
+                
+                // Update placeholders
+                document.getElementById('admin-code-a').placeholder = `Current: ${RunContext.validCodes.operatorA}`;
+                document.getElementById('admin-code-b').placeholder = `Current: ${RunContext.validCodes.operatorB}`;
+                document.getElementById('admin-code-cmd').placeholder = `Current: ${RunContext.validCodes.command}`;
+                
+                updateAdminRunContext();
+            } else {
+                alert('Please enter valid codes (6 digits for operators, 8 characters for command)');
+            }
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - System Customization
+           ============================================ */
+        
+        function adminUpdateCustomization() {
+            const newTitle = document.getElementById('admin-custom-title').value;
+            const newClassification = document.getElementById('admin-custom-classification').value;
+            
+            let updated = false;
+            
+            if (newTitle && newTitle.trim()) {
+                RunContext.customTitle = newTitle.trim();
+                localStorage.setItem('customTitle', newTitle.trim());
+                document.getElementById('system-title').textContent = newTitle.trim();
+                logEvent('admin', `System title updated to: ${newTitle.trim()}`, true);
+                updated = true;
+            }
+            
+            if (newClassification && newClassification.trim()) {
+                RunContext.customClassification = newClassification.trim();
+                localStorage.setItem('customClassification', newClassification.trim());
+                document.getElementById('system-classification').textContent = newClassification.trim();
+                logEvent('admin', `Classification banner updated`, true);
+                updated = true;
+            }
+            
+            if (updated) {
+                // Clear input fields
+                document.getElementById('admin-custom-title').value = '';
+                document.getElementById('admin-custom-classification').value = '';
+                
+                // Update placeholders
+                document.getElementById('admin-custom-title').placeholder = RunContext.customTitle;
+                document.getElementById('admin-custom-classification').placeholder = RunContext.customClassification;
+                
+                updateAdminRunContext();
+            } else {
+                alert('Please enter new values for title or classification');
+            }
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Password Management
+           ============================================ */
+        
+        function adminChangePassword() {
+            const newPassword = document.getElementById('admin-new-password').value;
+            const confirmPassword = document.getElementById('admin-confirm-password').value;
+            
+            if (!newPassword || newPassword.length < 4) {
+                alert('Password must be at least 4 characters');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            RunContext.adminPassword = newPassword;
+            localStorage.setItem('adminPassword', newPassword);
+            
+            logEvent('admin', 'Administrator password changed successfully', true);
+            
+            // Clear fields
+            document.getElementById('admin-new-password').value = '';
+            document.getElementById('admin-confirm-password').value = '';
+            
+            alert('Admin password updated successfully');
         }
         
         /* ============================================
@@ -1850,6 +2105,33 @@
         }
         
         /* ============================================
+           STARTUP PASSWORD PROMPT
+           ============================================ */
+        
+        function checkFirstRun() {
+            const hasSetPassword = localStorage.getItem('passwordConfigured');
+            
+            if (!hasSetPassword) {
+                setTimeout(() => {
+                    const changePassword = confirm(
+                        'SECURITY NOTICE\n\n' +
+                        'Default admin password is: SUPERVISOR\n\n' +
+                        'For security, you should change this password.\n\n' +
+                        'Would you like to change it now?'
+                    );
+                    
+                    if (changePassword) {
+                        openAdminAuth();
+                        localStorage.setItem('passwordConfigured', 'true');
+                    } else {
+                        logEvent('warning', 'System started with default admin password');
+                        localStorage.setItem('passwordConfigured', 'true');
+                    }
+                }, 1000);
+            }
+        }
+        
+        /* ============================================
            KEYBOARD SHORTCUTS
            ============================================ */
         
@@ -1877,11 +2159,28 @@
            ============================================ */
         
         window.addEventListener('DOMContentLoaded', () => {
+            // Apply custom headers from localStorage
+            document.getElementById('system-title').textContent = RunContext.customTitle;
+            document.getElementById('system-classification').textContent = RunContext.customClassification;
+            
+            // Update admin panel placeholders
+            if (document.getElementById('admin-code-a')) {
+                document.getElementById('admin-code-a').placeholder = `Current: ${RunContext.validCodes.operatorA}`;
+                document.getElementById('admin-code-b').placeholder = `Current: ${RunContext.validCodes.operatorB}`;
+                document.getElementById('admin-code-cmd').placeholder = `Current: ${RunContext.validCodes.command}`;
+                document.getElementById('admin-custom-title').placeholder = RunContext.customTitle;
+                document.getElementById('admin-custom-classification').placeholder = RunContext.customClassification;
+            }
+            
             updateRunID();
             logEvent('info', 'Launch control simulator initialized');
             logEvent('info', 'Training mode active - All systems simulated');
             logEvent('info', 'Press Ctrl+Shift+A to access administrator console');
+            logEvent('info', `Current training codes - A:${RunContext.validCodes.operatorA} B:${RunContext.validCodes.operatorB} CMD:${RunContext.validCodes.command}`);
             updateSubsystemDisplay();
+            
+            // Check if this is first run
+            checkFirstRun();
         });
     </script>
 </body>
