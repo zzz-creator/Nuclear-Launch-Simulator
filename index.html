@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICBM Launch Control System - Training Simulator</title>
+    <meta name="description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures for crisis response training">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ICBM Launch Control System - Training Simulator">
+    <meta property="og:description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=630&fit=crop">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ICBM Launch Control System - Training Simulator">
+    <meta name="twitter:description" content="Nuclear Launch Control System Training Simulator - Educational interface demonstrating command and control procedures">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=630&fit=crop">
+    
+    <style>
+        /* ============================================
+           GLOBAL STYLES & RESET
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Color System - Military Command Interface */
+            --bg-primary: #0a0e14;
+            --bg-panel: #12171f;
+            --bg-panel-active: #1a2129;
+            --border-primary: #2a3442;
+            --border-active: #3a4a5a;
+            
+            --text-primary: #e0e6ed;
+            --text-secondary: #8b95a0;
+            --text-dim: #5a6570;
+            
+            --status-ready: #4ade80;
+            --status-warning: #fbbf24;
+            --status-error: #ef4444;
+            --status-info: #60a5fa;
+            --status-armed: #f97316;
+            
+            --accent-primary: #fbbf24;
+            --accent-danger: #dc2626;
+            
+            /* Administrator Theme */
+            --admin-primary: #a855f7;
+            --admin-secondary: #f97316;
+            --admin-bg: #1a0f2e;
+            --admin-panel: #251940;
+            --admin-border: #4a2d6b;
+            --admin-text: #e9d5ff;
+            
+            /* Typography */
+            --font-mono: 'Courier New', monospace;
+            --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            
+            /* Spacing Grid */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+        
+        body {
+            font-family: var(--font-system);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* ============================================
+           HEADER - System Identification
+           ============================================ */
+        .system-header {
+            background: var(--bg-panel);
+            border-bottom: 2px solid var(--border-active);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .system-title {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent-primary);
+        }
+        
+        .system-id {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+        
+        .admin-access-indicator {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: var(--admin-primary);
+            color: white;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            display: none;
+            animation: pulse-admin 2s infinite;
+        }
+        
+        .admin-access-indicator.active {
+            display: block;
+        }
+        
+        @keyframes pulse-admin {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .disclaimer {
+            background: var(--accent-danger);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        /* ============================================
+           MAIN LAYOUT - Three Column Grid
+           ============================================ */
+        .control-center {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        /* ============================================
+           PANEL COMPONENTS - Reusable Container
+           ============================================ */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            padding: var(--spacing-md);
+        }
+        
+        .panel-header {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        /* ============================================
+           STATUS INDICATORS - LED Lights & States
+           ============================================ */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+        
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .status-light::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .status-light.ready {
+            background: var(--status-ready);
+            box-shadow: 0 0 8px var(--status-ready);
+        }
+        
+        .status-light.warning {
+            background: var(--status-warning);
+            box-shadow: 0 0 8px var(--status-warning);
+        }
+        
+        .status-light.error {
+            background: var(--status-error);
+            box-shadow: 0 0 8px var(--status-error);
+        }
+        
+        .status-light.armed {
+            background: var(--status-armed);
+            box-shadow: 0 0 8px var(--status-armed);
+            animation: pulse-armed 1s infinite;
+        }
+        
+        @keyframes pulse-armed {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .status-light.offline {
+            background: var(--text-dim);
+            box-shadow: none;
+        }
+        
+        .status-light.hold {
+            background: var(--admin-secondary);
+            box-shadow: 0 0 8px var(--admin-secondary);
+        }
+        
+        /* ============================================
+           SUBSYSTEM MONITORING - Detailed Status Grid
+           ============================================ */
+        .subsystem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+        
+        .subsystem-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            padding: var(--spacing-sm);
+            border-radius: 2px;
+        }
+        
+        .subsystem-name {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .subsystem-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .subsystem-value {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+        }
+        
+        /* ============================================
+           BUTTONS - Command Actions
+           ============================================ */
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 2px solid;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+        }
+        
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            color: var(--status-info);
+            border-color: var(--status-info);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--status-info);
+            color: var(--bg-primary);
+        }
+        
+        .btn-warning {
+            color: var(--status-warning);
+            border-color: var(--status-warning);
+        }
+        
+        .btn-warning:hover:not(:disabled) {
+            background: var(--status-warning);
+            color: var(--bg-primary);
+        }
+        
+        .btn-danger {
+            color: var(--status-error);
+            border-color: var(--status-error);
+        }
+        
+        .btn-danger:hover:not(:disabled) {
+            background: var(--status-error);
+            color: white;
+        }
+        
+        .btn-armed {
+            color: var(--status-armed);
+            border-color: var(--status-armed);
+            animation: pulse-border 1.5s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { border-color: var(--status-armed); }
+            50% { border-color: var(--status-error); }
+        }
+        
+        .btn-armed:hover:not(:disabled) {
+            background: var(--status-armed);
+            color: white;
+        }
+        
+        .btn-admin {
+            color: var(--admin-primary);
+            border-color: var(--admin-primary);
+        }
+        
+        .btn-admin:hover:not(:disabled) {
+            background: var(--admin-primary);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 11px;
+        }
+        
+        /* ============================================
+           INPUT FIELDS - Authentication
+           ============================================ */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        
+        .input-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+        
+        .input-field {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 2px;
+            color: var(--text-primary);
+            width: 100%;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .input-field:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* ============================================
+           EVENT LOG - Chronological Console
+           ============================================ */
+        .event-log {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 2px;
+            padding: var(--spacing-md);
+            height: 320px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+        
+        .log-entry {
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-entry.admin-action {
+            background: rgba(168, 85, 247, 0.1);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-left: 3px solid var(--admin-primary);
+        }
+        
+        .log-timestamp {
+            color: var(--text-dim);
+            min-width: 80px;
+        }
+        
+        .log-level {
+            min-width: 60px;
+            font-weight: 700;
+        }
+        
+        .log-level.info { color: var(--status-info); }
+        .log-level.warning { color: var(--status-warning); }
+        .log-level.error { color: var(--status-error); }
+        .log-level.success { color: var(--status-ready); }
+        .log-level.critical { color: var(--accent-danger); }
+        .log-level.admin { color: var(--admin-primary); }
+        
+        .log-message {
+            color: var(--text-secondary);
+            flex: 1;
+        }
+        
+        /* ============================================
+           COUNTDOWN TIMER - Launch Sequence
+           ============================================ */
+        .countdown-display {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-active);
+            border-radius: 4px;
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .countdown-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .countdown-timer {
+            font-family: var(--font-mono);
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--status-error);
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px var(--status-error);
+        }
+        
+        .countdown-timer.active {
+            animation: timer-pulse 1s infinite;
+        }
+        
+        @keyframes timer-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* ============================================
+           PROGRESS BAR - System Checks
+           ============================================ */
+        .progress-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 2px;
+            height: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--status-info), var(--status-ready));
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-text {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* ============================================
+           MODAL DIALOGS - Critical Confirmations
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--bg-panel);
+            border: 2px solid var(--accent-danger);
+            border-radius: 4px;
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+        }
+        
+        .modal-content.admin-modal {
+            border-color: var(--admin-primary);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+        }
+        
+        .modal-header {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-danger);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        
+        .modal-header.admin-header {
+            color: var(--admin-primary);
+        }
+        
+        .modal-body {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.8;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Supervisory Interface
+           ============================================ */
+        .admin-panel {
+            position: fixed;
+            right: -600px;
+            top: 0;
+            width: 600px;
+            height: 100vh;
+            background: var(--admin-bg);
+            border-left: 3px solid var(--admin-border);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            transition: right 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        
+        .admin-panel.open {
+            right: 0;
+        }
+        
+        .admin-panel-header {
+            background: var(--admin-panel);
+            border-bottom: 2px solid var(--admin-border);
+            padding: var(--spacing-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .admin-panel-title {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--admin-primary);
+            letter-spacing: 2px;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .admin-panel-subtitle {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--admin-text);
+            opacity: 0.7;
+        }
+        
+        .admin-close-btn {
+            position: absolute;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: transparent;
+            border: none;
+            color: var(--admin-text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .admin-section {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--admin-border);
+        }
+        
+        .admin-section-title {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--admin-secondary);
+            letter-spacing: 1px;
+            margin-bottom: var(--spacing-md);
+            text-transform: uppercase;
+        }
+        
+        .admin-state-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .admin-state-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--admin-border);
+            padding: var(--spacing-sm);
+            border-radius: 2px;
+        }
+        
+        .admin-state-label {
+            font-size: 10px;
+            color: var(--admin-text);
+            opacity: 0.7;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .admin-state-value {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--admin-text);
+        }
+        
+        .admin-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+        
+        .admin-warning {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid var(--admin-secondary);
+            padding: var(--spacing-md);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--admin-text);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .admin-log-viewer {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--admin-border);
+            border-radius: 2px;
+            padding: var(--spacing-md);
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+        
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1400px) {
+            .control-center {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .subsystem-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .countdown-timer {
+                font-size: 36px;
+            }
+            
+            .system-header {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         SYSTEM HEADER
+         ============================================ -->
+    <header class="system-header">
+        <div class="system-title">ICBM LAUNCH CONTROL SYSTEM</div>
+        <div class="system-id">SIM-TRAIN-2026 | SECTOR ALPHA-7 | RUN: <span id="run-id">--</span></div>
+        <div class="admin-access-indicator" id="admin-indicator">ADMIN ACCESS ACTIVE</div>
+    </header>
+    
+    <div class="disclaimer">
+        ⚠️ TRAINING SIMULATOR ONLY - FICTIONAL SYSTEM FOR EDUCATIONAL PURPOSES - NO REAL LAUNCH CAPABILITY ⚠️
+    </div>
+    
+    <!-- ============================================
+         MAIN CONTROL CENTER
+         ============================================ -->
+    <main class="control-center">
+        <!-- LEFT COLUMN: System Diagnostics & Monitoring -->
+        <section>
+            <!-- System Status Panel -->
+            <div class="panel" style="margin-bottom: 16px;">
+                <div class="panel-header">
+                    <span>SYSTEM STATUS</span>
+                    <span class="status-indicator" id="overall-status">
+                        <span class="status-light offline"></span>
+                        <span>OFFLINE</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="subsystem-grid" id="subsystem-status">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diagnostics Panel -->
+            <div class="panel">
+                <div class="panel-header">DIAGNOSTICS</div>
+                <div class="panel-body">
+                    <div id="diagnostics-progress-container" style="display: none;">
+                        <div class="progress-container">
+                            <div class="progress-bar" id="diagnostics-progress" style="width: 0%"></div>
+                            <div class="progress-text" id="diagnostics-progress-text">0%</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-initialize" onclick="initializeSystem()">
+                        Initialize System
+                    </button>
+                    <button class="btn btn-primary" id="btn-run-diagnostics" onclick="runDiagnostics()" disabled>
+                        Run Diagnostics
+                    </button>
+                    <button class="btn btn-warning" id="btn-inject-fault" onclick="injectFault()" disabled>
+                        Inject Fault (Training)
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CENTER COLUMN: Command & Control -->
+        <section>
+            <!-- Authentication Panel -->
+            <div class="panel" style="margin-bottom: 16px;">
+                <div class="panel-header">AUTHENTICATION</div>
+                <div class="panel-body">
+                    <div class="input-group">
+                        <label class="input-label">OPERATOR A - ACCESS CODE</label>
+                        <input type="password" class="input-field" id="auth-operator-a" placeholder="Enter 6-digit code" maxlength="6" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">OPERATOR B - ACCESS CODE</label>
+                        <input type="password" class="input-field" id="auth-operator-b" placeholder="Enter 6-digit code" maxlength="6" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">COMMAND AUTHORIZATION CODE</label>
+                        <input type="password" class="input-field" id="auth-command" placeholder="Enter 8-character code" maxlength="8" disabled>
+                    </div>
+                    <button class="btn btn-primary" id="btn-authenticate" onclick="authenticate()" disabled>
+                        Authenticate
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Launch Control Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>LAUNCH CONTROL</span>
+                    <span class="status-indicator" id="weapon-status">
+                        <span class="status-light offline"></span>
+                        <span>SAFED</span>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="countdown-display">
+                        <div class="countdown-label">COUNTDOWN STATUS</div>
+                        <div class="countdown-timer" id="countdown-display">--:--</div>
+                    </div>
+                    
+                    <button class="btn btn-warning" id="btn-arm" onclick="armWeaponSystem()" disabled>
+                        Arm Weapon System
+                    </button>
+                    <button class="btn btn-armed" id="btn-launch" onclick="initiateCountdown()" disabled style="display: none;">
+                        Initiate Launch Sequence
+                    </button>
+                    <button class="btn btn-danger" id="btn-abort" onclick="abortLaunch()" disabled style="display: none;">
+                        Emergency Abort
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- RIGHT COLUMN: Event Log -->
+        <section>
+            <div class="panel">
+                <div class="panel-header">EVENT LOG</div>
+                <div class="event-log" id="event-log">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- ============================================
+         ADMINISTRATOR PANEL - Supervisory Console
+         Python-style runtime control interface
+         ============================================ -->
+    <aside class="admin-panel" id="admin-panel">
+        <div class="admin-panel-header">
+            <div class="admin-panel-title">🔐 ADMINISTRATOR CONSOLE</div>
+            <div class="admin-panel-subtitle">Supervisory Runtime Control</div>
+            <button class="admin-close-btn" onclick="closeAdminPanel()">×</button>
+        </div>
+        
+        <!-- Run Context Overview - Read-Only State Visibility -->
+        <div class="admin-section">
+            <div class="admin-section-title">📊 Run Context Overview</div>
+            <div class="admin-state-grid" id="admin-run-context">
+                <!-- Dynamically populated from RunContext object -->
+            </div>
+        </div>
+        
+        <!-- Diagnostics Control - Runtime Injection -->
+        <div class="admin-section">
+            <div class="admin-section-title">🔧 Diagnostics Control</div>
+            <div class="admin-warning">
+                ⚠️ Administrative Override: Changes affect system state without operator action
+            </div>
+            <div class="admin-control-group">
+                <button class="btn btn-admin btn-sm" onclick="adminForceDiagnostics()" id="admin-btn-force-diag">
+                    Force Diagnostics Re-execution
+                </button>
+                <button class="btn btn-admin btn-sm" onclick="adminInjectOutcome('GREEN')">
+                    Inject Outcome: GREEN
+                </button>
+                <button class="btn btn-admin btn-sm" onclick="adminInjectOutcome('DEGRADED')">
+                    Inject Outcome: DEGRADED
+                </button>
+                <button class="btn btn-admin btn-sm" onclick="adminInjectOutcome('FAILED')">
+                    Inject Outcome: FAILED
+                </button>
+            </div>
+        </div>
+        
+        <!-- Flow Control - Step Governance -->
+        <div class="admin-section">
+            <div class="admin-section-title">⏸️ Flow Control</div>
+            <div class="admin-warning">
+                Step governance: HOLD/RESUME controls freeze operator actions without skipping workflow steps
+            </div>
+            <div class="admin-control-group">
+                <button class="btn btn-admin btn-sm" onclick="adminHoldSystem()" id="admin-btn-hold">
+                    Place System in HOLD
+                </button>
+                <button class="btn btn-admin btn-sm" onclick="adminResumeSystem()" id="admin-btn-resume" disabled>
+                    Resume from HOLD
+                </button>
+            </div>
+            <div class="admin-state-grid" style="margin-top: 16px;">
+                <div class="admin-state-item">
+                    <div class="admin-state-label">Current Step</div>
+                    <div class="admin-state-value" id="admin-current-step">0</div>
+                </div>
+                <div class="admin-state-item">
+                    <div class="admin-state-label">Hold Status</div>
+                    <div class="admin-state-value" id="admin-hold-status">ACTIVE</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lock & Reset Controls -->
+        <div class="admin-section">
+            <div class="admin-section-title">🔒 Lock & Reset Controls</div>
+            <div class="admin-warning">
+                Critical controls: Lock actions halt all operator functions; Reset regenerates run_id
+            </div>
+            <div class="admin-control-group">
+                <button class="btn btn-admin btn-sm" onclick="adminSoftLock()">
+                    Soft Lock (Pause Operations)
+                </button>
+                <button class="btn btn-admin btn-sm" onclick="adminHardLock()">
+                    Hard Lock (Requires Restart)
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="adminResetSystem()">
+                    System Reset (New Run ID)
+                </button>
+            </div>
+        </div>
+        
+        <!-- Timing Controls -->
+        <div class="admin-section">
+            <div class="admin-section-title">⏱️ Timing Controls</div>
+            <div class="admin-control-group">
+                <div class="input-group">
+                    <label class="input-label">Delay Multiplier (affects future actions)</label>
+                    <input type="range" id="admin-delay-multiplier" min="0.1" max="5" step="0.1" value="1" oninput="adminUpdateDelayMultiplier(this.value)">
+                    <div style="text-align: center; font-family: var(--font-mono); font-size: 14px; color: var(--admin-text);" id="admin-delay-value">1.0x</div>
+                </div>
+                <button class="btn btn-admin btn-sm" onclick="adminToggleLatency()" id="admin-btn-latency">
+                    Disable Latency Simulation
+                </button>
+            </div>
+        </div>
+        
+        <!-- Audit Log Viewer -->
+        <div class="admin-section">
+            <div class="admin-section-title">📋 Audit Log</div>
+            <div class="admin-log-viewer" id="admin-log-viewer">
+                <!-- Mirror of event log with admin highlighting -->
+            </div>
+            <button class="btn btn-admin btn-sm" onclick="adminExportLog()" style="margin-top: 12px;">
+                Export Full Log
+            </button>
+        </div>
+    </aside>
+    
+    <!-- ============================================
+         CONFIRMATION MODAL (Hidden by default)
+         ============================================ -->
+    <div id="modal-launch-confirm" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">⚠️ FINAL LAUNCH AUTHORIZATION ⚠️</div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">
+                    You are about to authorize a simulated launch sequence. This action cannot be reversed once countdown reaches T-10 seconds.
+                </p>
+                <p style="font-weight: 700; color: var(--accent-danger);">
+                    Do you confirm authorization to proceed?
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="cancelLaunchConfirm()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmLaunch()" style="flex: 1;">Confirm Launch</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Authentication Modal -->
+    <div id="modal-admin-auth" class="modal-overlay" style="display: none;">
+        <div class="modal-content admin-modal">
+            <div class="modal-header admin-header">🔐 ADMINISTRATOR AUTHENTICATION</div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">ADMIN PASSPHRASE</label>
+                    <input type="password" class="input-field" id="admin-passphrase" placeholder="Enter admin passphrase">
+                </div>
+                <p style="margin-top: 16px; font-size: 12px; color: var(--text-dim);">
+                    Training mode: Use passphrase <code style="color: var(--admin-primary);">SUPERVISOR</code>
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="cancelAdminAuth()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-admin" onclick="submitAdminAuth()" style="flex: 1;">Authenticate</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Confirmation Modals -->
+    <div id="modal-admin-confirm" class="modal-overlay" style="display: none;">
+        <div class="modal-content admin-modal">
+            <div class="modal-header admin-header" id="admin-confirm-title">CONFIRM ACTION</div>
+            <div class="modal-body" id="admin-confirm-message">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="cancelAdminConfirm()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-danger" onclick="executeAdminConfirm()" style="flex: 1;">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        /* ============================================
+           RUN CONTEXT - Central State Management
+           Similar to Python runtime context object
+           ============================================ */
+        
+        const RunContext = {
+            // Immutable session identifier
+            run_id: generateRunID(),
+            
+            // Current workflow step (read-only to operators, visible to admin)
+            current_step: 0,
+            
+            // System state flags
+            initialized: false,
+            diagnosticsPassed: false,
+            authenticated: false,
+            armed: false,
+            countdownActive: false,
+            countdownAbortable: true,
+            
+            // Administrative state
+            adminAuthenticated: false,
+            systemLocked: false,
+            lockType: null, // 'soft' or 'hard'
+            systemHold: false,
+            
+            // Fault injection state
+            faultInjected: false,
+            adminForcedOutcome: null, // 'GREEN', 'DEGRADED', 'FAILED', or null
+            
+            // Timing controls (writable by admin)
+            delayMultiplier: 1.0,
+            latencyEnabled: true,
+            
+            // Subsystem states
+            subsystems: {
+                'PWR-CORE': { status: 'OFFLINE', value: '0%' },
+                'NAV-SYS': { status: 'OFFLINE', value: 'NO LOCK' },
+                'COMM-LINK': { status: 'OFFLINE', value: 'NO SIGNAL' },
+                'TGT-COMP': { status: 'OFFLINE', value: 'STANDBY' },
+                'FUEL-SYS': { status: 'OFFLINE', value: '0 PSI' },
+                'GUID-CTL': { status: 'OFFLINE', value: 'INACTIVE' },
+                'THERMAL': { status: 'OFFLINE', value: '-- °C' },
+                'PAYLOAD': { status: 'OFFLINE', value: 'SAFED' }
+            },
+            
+            // Countdown state
+            countdownSeconds: 60,
+            countdownInterval: null,
+            
+            // Immutable event log (append-only)
+            eventLog: []
+        };
+        
+        function generateRunID() {
+            const timestamp = Date.now().toString(36).toUpperCase();
+            const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `RUN-${timestamp}-${random}`;
+        }
+        
+        function updateRunID() {
+            document.getElementById('run-id').textContent = RunContext.run_id;
+        }
+        
+        /* ============================================
+           EVENT LOGGING SYSTEM
+           Append-only immutable log with admin flagging
+           ============================================ */
+        
+        function logEvent(level, message, isAdminAction = false) {
+            const logContainer = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, fractionalSecondDigits: 3 });
+            
+            // Append to immutable log
+            const logRecord = {
+                timestamp,
+                level,
+                message,
+                isAdminAction,
+                step: RunContext.current_step
+            };
+            RunContext.eventLog.push(logRecord);
+            
+            // Render to UI
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${isAdminAction ? 'admin-action' : ''}`;
+            logEntry.innerHTML = `
+                <span class="log-timestamp">${timestamp}</span>
+                <span class="log-level ${isAdminAction ? 'admin' : level}">${isAdminAction ? 'ADMIN' : level.toUpperCase()}</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Mirror to admin log viewer
+            updateAdminLogViewer();
+            
+            console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+        }
+        
+        /* ============================================
+           OPERATOR ACTION GUARD
+           Blocks all operator actions when system locked or on hold
+           ============================================ */
+        
+        function isOperatorActionAllowed() {
+            if (RunContext.systemLocked) {
+                if (RunContext.lockType === 'hard') {
+                    alert('SYSTEM HARD LOCKED - Reload page to restart');
+                } else {
+                    alert('SYSTEM LOCKED - Contact administrator');
+                }
+                return false;
+            }
+            
+            if (RunContext.systemHold) {
+                alert('SYSTEM ON HOLD - Operator actions suspended');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /* ============================================
+           UI UPDATE FUNCTIONS
+           ============================================ */
+        
+        function updateOverallStatus(status, text) {
+            const indicator = document.getElementById('overall-status');
+            const light = indicator.querySelector('.status-light');
+            const label = indicator.querySelector('span:last-child');
+            
+            light.className = `status-light ${status}`;
+            label.textContent = text;
+        }
+        
+        function updateWeaponStatus(status, text) {
+            const indicator = document.getElementById('weapon-status');
+            const light = indicator.querySelector('.status-light');
+            const label = indicator.querySelector('span:last-child');
+            
+            light.className = `status-light ${status}`;
+            label.textContent = text;
+        }
+        
+        function updateSubsystemDisplay() {
+            const container = document.getElementById('subsystem-status');
+            container.innerHTML = '';
+            
+            for (const [key, data] of Object.entries(RunContext.subsystems)) {
+                const item = document.createElement('div');
+                item.className = 'subsystem-item';
+                
+                let statusClass = 'offline';
+                if (data.status === 'READY') statusClass = 'ready';
+                else if (data.status === 'DEGRADED') statusClass = 'warning';
+                else if (data.status === 'FAILED') statusClass = 'error';
+                
+                item.innerHTML = `
+                    <div class="subsystem-name">${key}</div>
+                    <div class="subsystem-status">
+                        <span class="status-indicator">
+                            <span class="status-light ${statusClass}"></span>
+                            <span>${data.status}</span>
+                        </span>
+                        <span class="subsystem-value">${data.value}</span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            }
+        }
+        
+        function updateCountdownDisplay() {
+            const display = document.getElementById('countdown-display');
+            const minutes = Math.floor(RunContext.countdownSeconds / 60);
+            const seconds = RunContext.countdownSeconds % 60;
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function applyDelay(baseMs) {
+            return RunContext.latencyEnabled ? baseMs * RunContext.delayMultiplier : 0;
+        }
+        
+        /* ============================================
+           SYSTEM INITIALIZATION
+           ============================================ */
+        
+        function initializeSystem() {
+            if (!isOperatorActionAllowed()) return;
+            
+            logEvent('info', 'System initialization sequence started');
+            RunContext.current_step = 1;
+            updateAdminRunContext();
+            
+            document.getElementById('btn-initialize').disabled = true;
+            
+            setTimeout(() => {
+                RunContext.initialized = true;
+                
+                // Update subsystems to standby
+                RunContext.subsystems['PWR-CORE'] = { status: 'READY', value: '100%' };
+                RunContext.subsystems['COMM-LINK'] = { status: 'READY', value: 'ACTIVE' };
+                RunContext.subsystems['THERMAL'] = { status: 'READY', value: '22 °C' };
+                
+                updateSubsystemDisplay();
+                updateOverallStatus('warning', 'STANDBY');
+                
+                document.getElementById('btn-run-diagnostics').disabled = false;
+                document.getElementById('btn-inject-fault').disabled = false;
+                
+                logEvent('success', 'System initialization complete - Ready for diagnostics');
+                updateAdminRunContext();
+            }, applyDelay(2000));
+        }
+        
+        /* ============================================
+           DIAGNOSTICS ROUTINE
+           ============================================ */
+        
+        function runDiagnostics() {
+            if (!isOperatorActionAllowed()) return;
+            
+            logEvent('info', 'Running comprehensive system diagnostics');
+            RunContext.current_step = 2;
+            updateAdminRunContext();
+            
+            document.getElementById('btn-run-diagnostics').disabled = true;
+            document.getElementById('diagnostics-progress-container').style.display = 'block';
+            
+            let progress = 0;
+            const progressBar = document.getElementById('diagnostics-progress');
+            const progressText = document.getElementById('diagnostics-progress-text');
+            
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = progress + '%';
+                
+                // Simulate subsystem checks
+                if (progress === 25) {
+                    logEvent('info', 'Navigation system: Acquiring satellite lock...');
+                    RunContext.subsystems['NAV-SYS'] = { status: 'READY', value: 'GPS LOCK' };
+                    updateSubsystemDisplay();
+                }
+                
+                if (progress === 50) {
+                    logEvent('info', 'Targeting computer: Self-test passed');
+                    RunContext.subsystems['TGT-COMP'] = { status: 'READY', value: 'ONLINE' };
+                    updateSubsystemDisplay();
+                }
+                
+                if (progress === 75) {
+                    // Check for admin-forced outcome
+                    if (RunContext.adminForcedOutcome === 'FAILED') {
+                        logEvent('error', 'Guidance system: CRITICAL FAILURE [ADMIN INJECTED]');
+                        RunContext.subsystems['GUID-CTL'] = { status: 'FAILED', value: 'ERROR' };
+                    } else if (RunContext.adminForcedOutcome === 'DEGRADED' || RunContext.faultInjected) {
+                        logEvent('warning', 'Guidance system: DEGRADED - Manual override available');
+                        RunContext.subsystems['GUID-CTL'] = { status: 'DEGRADED', value: 'BACKUP' };
+                    } else {
+                        logEvent('info', 'Guidance system: Calibration complete');
+                        RunContext.subsystems['GUID-CTL'] = { status: 'READY', value: 'NOMINAL' };
+                    }
+                    
+                    RunContext.subsystems['FUEL-SYS'] = { status: 'READY', value: '3500 PSI' };
+                    RunContext.subsystems['PAYLOAD'] = { status: 'READY', value: 'ARMED' };
+                    updateSubsystemDisplay();
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        // Check if diagnostics should pass
+                        const shouldPass = RunContext.adminForcedOutcome !== 'FAILED';
+                        
+                        RunContext.diagnosticsPassed = shouldPass;
+                        updateOverallStatus(shouldPass ? 'ready' : 'error', shouldPass ? 'OPERATIONAL' : 'DEGRADED');
+                        
+                        if (shouldPass) {
+                            // Enable authentication inputs
+                            document.getElementById('auth-operator-a').disabled = false;
+                            document.getElementById('auth-operator-b').disabled = false;
+                            document.getElementById('auth-command').disabled = false;
+                            document.getElementById('btn-authenticate').disabled = false;
+                            
+                            if (RunContext.adminForcedOutcome || RunContext.faultInjected) {
+                                logEvent('warning', 'Diagnostics complete with warnings - System operational with degraded subsystems');
+                            } else {
+                                logEvent('success', 'All systems nominal - Ready for authentication');
+                            }
+                        } else {
+                            logEvent('error', 'Diagnostics failed - System not operational');
+                        }
+                        
+                        document.getElementById('diagnostics-progress-container').style.display = 'none';
+                        updateAdminRunContext();
+                    }, applyDelay(500));
+                }
+            }, applyDelay(200));
+        }
+        
+        /* ============================================
+           FAULT INJECTION (Training Feature)
+           ============================================ */
+        
+        function injectFault() {
+            if (!RunContext.faultInjected) {
+                RunContext.faultInjected = true;
+                logEvent('warning', 'TRAINING MODE: Fault injected into guidance system');
+                document.getElementById('btn-inject-fault').textContent = 'Fault Active';
+            } else {
+                RunContext.faultInjected = false;
+                logEvent('info', 'TRAINING MODE: Fault cleared from guidance system');
+                document.getElementById('btn-inject-fault').textContent = 'Inject Fault (Training)';
+            }
+            updateAdminRunContext();
+        }
+        
+        /* ============================================
+           AUTHENTICATION SEQUENCE
+           ============================================ */
+        
+        function authenticate() {
+            if (!isOperatorActionAllowed()) return;
+            
+            const operatorA = document.getElementById('auth-operator-a').value;
+            const operatorB = document.getElementById('auth-operator-b').value;
+            const commandCode = document.getElementById('auth-command').value;
+            
+            logEvent('info', 'Authentication sequence initiated');
+            RunContext.current_step = 3;
+            updateAdminRunContext();
+            
+            // Validation checks
+            if (operatorA.length !== 6) {
+                logEvent('error', 'Operator A authentication failed - Invalid code length');
+                return;
+            }
+            
+            if (operatorB.length !== 6) {
+                logEvent('error', 'Operator B authentication failed - Invalid code length');
+                return;
+            }
+            
+            if (commandCode.length !== 8) {
+                logEvent('error', 'Command authorization failed - Invalid code length');
+                return;
+            }
+            
+            // Simulate authentication delay
+            document.getElementById('btn-authenticate').disabled = true;
+            document.getElementById('btn-authenticate').textContent = 'Verifying...';
+            
+            setTimeout(() => {
+                RunContext.authenticated = true;
+                
+                logEvent('success', 'Operator A authenticated - Access granted');
+                setTimeout(() => {
+                    logEvent('success', 'Operator B authenticated - Access granted');
+                }, applyDelay(800));
+                
+                setTimeout(() => {
+                    logEvent('success', 'Command authorization verified - Weapon system access enabled');
+                    
+                    // Disable auth inputs
+                    document.getElementById('auth-operator-a').disabled = true;
+                    document.getElementById('auth-operator-b').disabled = true;
+                    document.getElementById('auth-command').disabled = true;
+                    document.getElementById('btn-authenticate').textContent = 'Authenticated';
+                    
+                    // Enable weapon arming
+                    document.getElementById('btn-arm').disabled = false;
+                    updateWeaponStatus('warning', 'AUTH GRANTED');
+                    updateAdminRunContext();
+                }, applyDelay(1600));
+            }, applyDelay(2000));
+        }
+        
+        /* ============================================
+           WEAPON SYSTEM ARMING
+           ============================================ */
+        
+        function armWeaponSystem() {
+            if (!isOperatorActionAllowed()) return;
+            
+            logEvent('warning', 'Weapon system arming sequence initiated');
+            RunContext.current_step = 4;
+            updateAdminRunContext();
+            
+            document.getElementById('btn-arm').disabled = true;
+            document.getElementById('btn-arm').textContent = 'Arming...';
+            
+            setTimeout(() => {
+                RunContext.armed = true;
+                updateWeaponStatus('armed', 'ARMED');
+                
+                logEvent('critical', 'WEAPON SYSTEM ARMED - Standing by for launch authorization');
+                
+                // Show launch button, hide arm button
+                document.getElementById('btn-arm').style.display = 'none';
+                document.getElementById('btn-launch').style.display = 'block';
+                document.getElementById('btn-launch').disabled = false;
+                updateAdminRunContext();
+            }, applyDelay(3000));
+        }
+        
+        /* ============================================
+           LAUNCH SEQUENCE
+           ============================================ */
+        
+        function initiateCountdown() {
+            if (!isOperatorActionAllowed()) return;
+            
+            // Show confirmation modal
+            document.getElementById('modal-launch-confirm').style.display = 'flex';
+        }
+        
+        function cancelLaunchConfirm() {
+            document.getElementById('modal-launch-confirm').style.display = 'none';
+            logEvent('info', 'Launch authorization cancelled by operator');
+        }
+        
+        function confirmLaunch() {
+            document.getElementById('modal-launch-confirm').style.display = 'none';
+            
+            logEvent('critical', 'LAUNCH SEQUENCE AUTHORIZED - Initiating countdown');
+            RunContext.current_step = 5;
+            updateAdminRunContext();
+            
+            RunContext.countdownActive = true;
+            RunContext.countdownSeconds = 60;
+            updateCountdownDisplay();
+            
+            // Update UI
+            document.getElementById('btn-launch').style.display = 'none';
+            document.getElementById('btn-abort').style.display = 'block';
+            document.getElementById('btn-abort').disabled = false;
+            document.getElementById('countdown-display').classList.add('active');
+            
+            // Start countdown
+            RunContext.countdownInterval = setInterval(() => {
+                RunContext.countdownSeconds--;
+                updateCountdownDisplay();
+                
+                // Key events during countdown
+                if (RunContext.countdownSeconds === 30) {
+                    logEvent('warning', 'T-30 seconds - Fuel pressurization initiated');
+                    RunContext.subsystems['FUEL-SYS'] = { status: 'READY', value: '4200 PSI' };
+                    updateSubsystemDisplay();
+                }
+                
+                if (RunContext.countdownSeconds === 20) {
+                    logEvent('warning', 'T-20 seconds - Guidance system active lock');
+                }
+                
+                if (RunContext.countdownSeconds === 10) {
+                    logEvent('critical', 'T-10 seconds - ABORT WINDOW CLOSED');
+                    RunContext.countdownAbortable = false;
+                    document.getElementById('btn-abort').disabled = true;
+                    document.getElementById('btn-abort').textContent = 'Abort Unavailable';
+                }
+                
+                if (RunContext.countdownSeconds === 5) {
+                    logEvent('critical', 'T-5 seconds - Final ignition sequence');
+                }
+                
+                if (RunContext.countdownSeconds <= 0) {
+                    clearInterval(RunContext.countdownInterval);
+                    executeLaunch();
+                }
+            }, applyDelay(1000));
+        }
+        
+        function abortLaunch() {
+            if (!RunContext.countdownAbortable) {
+                logEvent('error', 'Abort rejected - Beyond safe abort threshold');
+                return;
+            }
+            
+            clearInterval(RunContext.countdownInterval);
+            RunContext.countdownActive = false;
+            RunContext.countdownAbortable = true;
+            
+            logEvent('warning', 'EMERGENCY ABORT EXECUTED - Launch sequence terminated');
+            
+            document.getElementById('countdown-display').classList.remove('active');
+            document.getElementById('countdown-display').textContent = 'ABORT';
+            
+            // Reset to armed state
+            setTimeout(() => {
+                document.getElementById('btn-abort').style.display = 'none';
+                document.getElementById('btn-launch').style.display = 'block';
+                document.getElementById('btn-launch').disabled = false;
+                
+                RunContext.countdownSeconds = 60;
+                updateCountdownDisplay();
+                
+                logEvent('info', 'System returned to armed standby - Ready for re-authorization');
+                RunContext.current_step = 4;
+                updateAdminRunContext();
+            }, applyDelay(3000));
+        }
+        
+        function executeLaunch() {
+            logEvent('critical', '🚀 LAUNCH EXECUTED - Missile away');
+            RunContext.current_step = 6;
+            updateAdminRunContext();
+            
+            document.getElementById('countdown-display').textContent = 'LAUNCH';
+            document.getElementById('btn-abort').style.display = 'none';
+            
+            updateWeaponStatus('error', 'LAUNCHED');
+            
+            setTimeout(() => {
+                logEvent('info', 'Telemetry confirmed - Vehicle in flight');
+            }, applyDelay(2000));
+            
+            setTimeout(() => {
+                logEvent('info', 'Stage 1 separation confirmed');
+            }, applyDelay(5000));
+            
+            setTimeout(() => {
+                logEvent('success', 'Simulation complete - Training objective achieved');
+                logEvent('info', 'Reload page to reset simulator');
+                RunContext.current_step = 7;
+                updateAdminRunContext();
+            }, applyDelay(8000));
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Authentication & Access
+           ============================================ */
+        
+        function openAdminAuth() {
+            document.getElementById('modal-admin-auth').style.display = 'flex';
+            document.getElementById('admin-passphrase').value = '';
+            document.getElementById('admin-passphrase').focus();
+        }
+        
+        function cancelAdminAuth() {
+            document.getElementById('modal-admin-auth').style.display = 'none';
+        }
+        
+        function submitAdminAuth() {
+            const passphrase = document.getElementById('admin-passphrase').value;
+            
+            // Training mode: Accept "SUPERVISOR" as valid passphrase
+            if (passphrase === 'SUPERVISOR') {
+                RunContext.adminAuthenticated = true;
+                document.getElementById('modal-admin-auth').style.display = 'none';
+                document.getElementById('admin-panel').classList.add('open');
+                document.getElementById('admin-indicator').classList.add('active');
+                
+                logEvent('admin', 'Administrator access granted - Supervisory console active', true);
+                updateAdminRunContext();
+                updateAdminLogViewer();
+            } else {
+                alert('Authentication failed - Invalid passphrase');
+                logEvent('warning', 'Administrator authentication attempt failed');
+            }
+        }
+        
+        function closeAdminPanel() {
+            document.getElementById('admin-panel').classList.remove('open');
+            logEvent('admin', 'Administrator console closed', true);
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Run Context Display
+           Read-only visibility into system state
+           ============================================ */
+        
+        function updateAdminRunContext() {
+            if (!RunContext.adminAuthenticated) return;
+            
+            const container = document.getElementById('admin-run-context');
+            const stateData = {
+                'Run ID': RunContext.run_id,
+                'Current Step': RunContext.current_step,
+                'Initialized': RunContext.initialized ? 'YES' : 'NO',
+                'Diagnostics': RunContext.diagnosticsPassed ? 'PASSED' : 'NOT RUN',
+                'Authenticated': RunContext.authenticated ? 'YES' : 'NO',
+                'Armed': RunContext.armed ? 'YES' : 'NO',
+                'Countdown': RunContext.countdownActive ? 'ACTIVE' : 'IDLE',
+                'System Lock': RunContext.systemLocked ? RunContext.lockType.toUpperCase() : 'NONE',
+                'Hold Status': RunContext.systemHold ? 'ACTIVE' : 'NORMAL',
+                'Fault Injected': RunContext.faultInjected ? 'YES' : 'NO',
+                'Admin Outcome': RunContext.adminForcedOutcome || 'NONE',
+                'Delay Mult.': RunContext.delayMultiplier.toFixed(1) + 'x',
+                'Latency': RunContext.latencyEnabled ? 'ON' : 'OFF',
+                'Abort Window': RunContext.countdownAbortable ? 'OPEN' : 'CLOSED'
+            };
+            
+            container.innerHTML = '';
+            for (const [label, value] of Object.entries(stateData)) {
+                const item = document.createElement('div');
+                item.className = 'admin-state-item';
+                item.innerHTML = `
+                    <div class="admin-state-label">${label}</div>
+                    <div class="admin-state-value">${value}</div>
+                `;
+                container.appendChild(item);
+            }
+            
+            // Update step display
+            document.getElementById('admin-current-step').textContent = RunContext.current_step;
+            document.getElementById('admin-hold-status').textContent = RunContext.systemHold ? 'ACTIVE' : 'NORMAL';
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Diagnostics Control
+           Runtime injection and override
+           ============================================ */
+        
+        function adminForceDiagnostics() {
+            if (RunContext.systemLocked) {
+                alert('Cannot force diagnostics - System is locked');
+                return;
+            }
+            
+            logEvent('admin', 'Administrator forcing diagnostics re-execution', true);
+            
+            // Reset diagnostics state
+            RunContext.diagnosticsPassed = false;
+            RunContext.adminForcedOutcome = null;
+            
+            // Re-enable diagnostics button
+            document.getElementById('btn-run-diagnostics').disabled = false;
+            
+            updateAdminRunContext();
+        }
+        
+        function adminInjectOutcome(outcome) {
+            logEvent('admin', `Administrator injecting diagnostics outcome: ${outcome}`, true);
+            RunContext.adminForcedOutcome = outcome;
+            updateAdminRunContext();
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Flow Control
+           HOLD/RESUME without step advancement
+           ============================================ */
+        
+        function adminHoldSystem() {
+            RunContext.systemHold = true;
+            logEvent('admin', 'System placed in HOLD - All operator actions suspended', true);
+            
+            updateOverallStatus('hold', 'ON HOLD');
+            document.getElementById('admin-btn-hold').disabled = true;
+            document.getElementById('admin-btn-resume').disabled = false;
+            updateAdminRunContext();
+        }
+        
+        function adminResumeSystem() {
+            RunContext.systemHold = false;
+            logEvent('admin', 'System resumed from HOLD - Operator actions enabled', true);
+            
+            // Restore appropriate status
+            if (RunContext.diagnosticsPassed) {
+                updateOverallStatus('ready', 'OPERATIONAL');
+            } else if (RunContext.initialized) {
+                updateOverallStatus('warning', 'STANDBY');
+            }
+            
+            document.getElementById('admin-btn-hold').disabled = false;
+            document.getElementById('admin-btn-resume').disabled = true;
+            updateAdminRunContext();
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Lock & Reset Controls
+           System-level authority
+           ============================================ */
+        
+        let adminConfirmCallback = null;
+        
+        function showAdminConfirm(title, message, callback) {
+            document.getElementById('admin-confirm-title').textContent = title;
+            document.getElementById('admin-confirm-message').innerHTML = message;
+            adminConfirmCallback = callback;
+            document.getElementById('modal-admin-confirm').style.display = 'flex';
+        }
+        
+        function cancelAdminConfirm() {
+            document.getElementById('modal-admin-confirm').style.display = 'none';
+            adminConfirmCallback = null;
+        }
+        
+        function executeAdminConfirm() {
+            document.getElementById('modal-admin-confirm').style.display = 'none';
+            if (adminConfirmCallback) {
+                adminConfirmCallback();
+                adminConfirmCallback = null;
+            }
+        }
+        
+        function adminSoftLock() {
+            showAdminConfirm(
+                'SOFT LOCK CONFIRMATION',
+                '<p>Soft lock will pause all operator actions until unlocked.</p><p>System state will be preserved.</p>',
+                () => {
+                    RunContext.systemLocked = true;
+                    RunContext.lockType = 'soft';
+                    logEvent('admin', 'SOFT LOCK ENGAGED - Operator actions disabled', true);
+                    updateOverallStatus('error', 'LOCKED');
+                    updateAdminRunContext();
+                }
+            );
+        }
+        
+        function adminHardLock() {
+            showAdminConfirm(
+                'HARD LOCK CONFIRMATION',
+                '<p><strong>WARNING:</strong> Hard lock requires full page reload to restart.</p><p>All progress will be lost.</p>',
+                () => {
+                    RunContext.systemLocked = true;
+                    RunContext.lockType = 'hard';
+                    logEvent('admin', 'HARD LOCK ENGAGED - System requires restart', true);
+                    updateOverallStatus('error', 'HARD LOCK');
+                    updateAdminRunContext();
+                    
+                    // Disable all operator controls
+                    document.querySelectorAll('.btn:not(.btn-admin)').forEach(btn => btn.disabled = true);
+                }
+            );
+        }
+        
+        function adminResetSystem() {
+            showAdminConfirm(
+                'SYSTEM RESET CONFIRMATION',
+                '<p><strong>WARNING:</strong> This will reset all system state and generate a new Run ID.</p><p>This action cannot be undone.</p>',
+                () => {
+                    logEvent('admin', `System reset initiated - Previous run_id: ${RunContext.run_id}`, true);
+                    
+                    // Generate new run ID
+                    RunContext.run_id = generateRunID();
+                    updateRunID();
+                    
+                    logEvent('admin', `System reset complete - New run_id: ${RunContext.run_id}`, true);
+                    
+                    // Full page reload after brief delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
+            );
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Timing Controls
+           ============================================ */
+        
+        function adminUpdateDelayMultiplier(value) {
+            const numValue = parseFloat(value);
+            RunContext.delayMultiplier = numValue;
+            document.getElementById('admin-delay-value').textContent = numValue.toFixed(1) + 'x';
+            logEvent('admin', `Delay multiplier set to ${numValue.toFixed(1)}x`, true);
+            updateAdminRunContext();
+        }
+        
+        function adminToggleLatency() {
+            RunContext.latencyEnabled = !RunContext.latencyEnabled;
+            const btn = document.getElementById('admin-btn-latency');
+            btn.textContent = RunContext.latencyEnabled ? 'Disable Latency Simulation' : 'Enable Latency Simulation';
+            logEvent('admin', `Latency simulation ${RunContext.latencyEnabled ? 'enabled' : 'disabled'}`, true);
+            updateAdminRunContext();
+        }
+        
+        /* ============================================
+           ADMINISTRATOR PANEL - Audit Log
+           ============================================ */
+        
+        function updateAdminLogViewer() {
+            if (!RunContext.adminAuthenticated) return;
+            
+            const viewer = document.getElementById('admin-log-viewer');
+            viewer.innerHTML = '';
+            
+            // Show last 20 events
+            const recentEvents = RunContext.eventLog.slice(-20);
+            recentEvents.forEach(event => {
+                const entry = document.createElement('div');
+                entry.style.marginBottom = '4px';
+                entry.style.padding = '4px';
+                entry.style.borderLeft = event.isAdminAction ? '2px solid var(--admin-primary)' : 'none';
+                entry.style.paddingLeft = event.isAdminAction ? '6px' : '4px';
+                entry.style.background = event.isAdminAction ? 'rgba(168, 85, 247, 0.1)' : 'transparent';
+                entry.innerHTML = `
+                    <span style="color: var(--text-dim);">${event.timestamp}</span>
+                    <span style="color: ${event.isAdminAction ? 'var(--admin-primary)' : 'var(--status-info)'}; margin: 0 8px;">[${event.isAdminAction ? 'ADMIN' : event.level.toUpperCase()}]</span>
+                    <span style="color: var(--admin-text);">${event.message}</span>
+                `;
+                viewer.appendChild(entry);
+            });
+            
+            viewer.scrollTop = viewer.scrollHeight;
+        }
+        
+        function adminExportLog() {
+            const logText = RunContext.eventLog.map(event => 
+                `[${event.timestamp}] [${event.isAdminAction ? 'ADMIN' : event.level.toUpperCase()}] [STEP ${event.step}] ${event.message}`
+            ).join('\n');
+            
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simulator-log-${RunContext.run_id}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            logEvent('admin', 'Full event log exported', true);
+        }
+        
+        /* ============================================
+           KEYBOARD SHORTCUTS
+           ============================================ */
+        
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Shift+A - Open admin authentication
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                e.preventDefault();
+                if (!RunContext.adminAuthenticated) {
+                    openAdminAuth();
+                } else {
+                    const panel = document.getElementById('admin-panel');
+                    if (panel.classList.contains('open')) {
+                        closeAdminPanel();
+                    } else {
+                        panel.classList.add('open');
+                        updateAdminRunContext();
+                        updateAdminLogViewer();
+                    }
+                }
+            }
+        });
+        
+        /* ============================================
+           INITIALIZATION ON PAGE LOAD
+           ============================================ */
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            updateRunID();
+            logEvent('info', 'Launch control simulator initialized');
+            logEvent('info', 'Training mode active - All systems simulated');
+            logEvent('info', 'Press Ctrl+Shift+A to access administrator console');
+            updateSubsystemDisplay();
+        });
+    </script>
+</body>
+</html>
