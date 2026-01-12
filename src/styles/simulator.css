@@ -1,0 +1,322 @@
+.simulator-container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.simulator-header {
+  background: var(--bg-panel);
+  border-bottom: 2px solid var(--border-active);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.session-code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--accent-primary);
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.run-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.role-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.role-badge[data-role="operator_a"],
+.role-badge[data-role="operator_b"] {
+  color: var(--status-info);
+  border-color: var(--status-info);
+}
+
+.role-badge[data-role="instructor"] {
+  color: var(--status-warning);
+  border-color: var(--status-warning);
+}
+
+.role-badge[data-role="observer"] {
+  color: var(--status-ready);
+  border-color: var(--status-ready);
+}
+
+.btn-leave {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--status-error);
+  color: var(--status-error);
+  border-radius: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-leave:hover {
+  background: var(--status-error);
+  color: white;
+}
+
+.simulator-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.control-panel {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.participants-panel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.event-log-panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  background: var(--bg-primary);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-active);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-indicator {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-primary);
+}
+
+.status-indicator[data-status="waiting"] {
+  color: var(--status-warning);
+  border-color: var(--status-warning);
+}
+
+.status-indicator[data-status="active"] {
+  color: var(--status-ready);
+  border-color: var(--status-ready);
+}
+
+.status-indicator[data-status="paused"] {
+  color: var(--text-dim);
+  border-color: var(--text-dim);
+}
+
+.status-indicator[data-status="completed"] {
+  color: var(--status-info);
+  border-color: var(--status-info);
+}
+
+.panel-body {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.step-section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+}
+
+.step-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.status-check {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid;
+  letter-spacing: 1px;
+}
+
+.status-check.status-ready {
+  color: var(--status-ready);
+  border-color: var(--status-ready);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.key-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.key-input-group label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.auth-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.participant-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.participant-status {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+}
+
+.participant-status[data-active="true"] {
+  color: var(--status-ready);
+}
+
+.participant-status[data-active="false"] {
+  color: var(--text-dim);
+}
+
+.participant-info {
+  flex: 1;
+}
+
+.participant-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.participant-role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.participant-role[data-role="instructor"] {
+  color: var(--status-warning);
+}
+
+.participant-role[data-role="operator_a"],
+.participant-role[data-role="operator_b"] {
+  color: var(--status-info);
+}
+
+.event-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.event-entry {
+  padding: 8px;
+  background: var(--bg-primary);
+  border-left: 2px solid var(--border-primary);
+  display: flex;
+  gap: 12px;
+}
+
+.event-time {
+  color: var(--text-dim);
+  min-width: 80px;
+}
+
+.event-type {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+  .simulator-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .control-panel {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .participants-panel {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .event-log-panel {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
