@@ -57,6 +57,11 @@
             --admin-border: #4a2d6b;
             --admin-text: #e9d5ff;
             
+            /* Role-specific colors */
+            --role-super: #a855f7;
+            --role-trainer: #3b82f6;
+            --role-observer: #10b981;
+            
             /* Typography */
             --font-mono: 'Courier New', monospace;
             --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -363,6 +368,16 @@
             font-size: 11px;
         }
         
+        .btn-scenario {
+            color: var(--status-ready);
+            border-color: var(--status-ready);
+        }
+        
+        .btn-scenario:hover:not(:disabled) {
+            background: var(--status-ready);
+            color: var(--bg-primary);
+        }
+        
         /* ============================================
            INPUT FIELDS - Authentication
            ============================================ */
@@ -577,6 +592,69 @@
             gap: var(--spacing-md);
         }
         
+        /* Role selection buttons */
+        .role-selection {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .role-btn {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            padding: var(--spacing-md);
+            border: 2px solid;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        
+        .role-btn:hover {
+            transform: translateX(4px);
+        }
+        
+        .role-btn.super-admin {
+            color: var(--role-super);
+            border-color: var(--role-super);
+        }
+        
+        .role-btn.super-admin:hover {
+            background: rgba(168, 85, 247, 0.2);
+        }
+        
+        .role-btn.trainer {
+            color: var(--role-trainer);
+            border-color: var(--role-trainer);
+        }
+        
+        .role-btn.trainer:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        
+        .role-btn.observer {
+            color: var(--role-observer);
+            border-color: var(--role-observer);
+        }
+        
+        .role-btn.observer:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+        
+        .role-title {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        
+        .role-desc {
+            font-size: 11px;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        
         /* ============================================
            ADMINISTRATOR PANEL - Supervisory Interface
            ============================================ */
@@ -623,6 +701,31 @@
             opacity: 0.7;
         }
         
+        .admin-role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .admin-role-badge.super {
+            background: var(--role-super);
+            color: white;
+        }
+        
+        .admin-role-badge.trainer {
+            background: var(--role-trainer);
+            color: white;
+        }
+        
+        .admin-role-badge.observer {
+            background: var(--role-observer);
+            color: white;
+        }
+        
         .admin-logout-btn {
             position: absolute;
             top: var(--spacing-lg);
@@ -663,6 +766,11 @@
         .admin-section {
             padding: var(--spacing-lg);
             border-bottom: 1px solid var(--admin-border);
+        }
+        
+        .admin-section.locked {
+            opacity: 0.4;
+            pointer-events: none;
         }
         
         .admin-section-title {
@@ -728,6 +836,12 @@
             overflow-y: auto;
             font-family: var(--font-mono);
             font-size: 10px;
+        }
+        
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-sm);
         }
         
         /* ============================================
@@ -889,7 +1003,10 @@
          ============================================ -->
     <aside class="admin-panel" id="admin-panel">
         <div class="admin-panel-header">
-            <div class="admin-panel-title">🔐 ADMINISTRATOR CONSOLE</div>
+            <div class="admin-panel-title">
+                🔐 ADMINISTRATOR CONSOLE
+                <span class="admin-role-badge" id="role-badge">SUPER</span>
+            </div>
             <div class="admin-panel-subtitle">Supervisory Runtime Control</div>
             <button class="admin-logout-btn" onclick="adminLogout()">Logout</button>
             <button class="admin-close-btn" onclick="closeAdminPanel()">×</button>
@@ -903,8 +1020,33 @@
             </div>
         </div>
         
+        <!-- Training Scenario Templates -->
+        <div class="admin-section" id="section-scenarios">
+            <div class="admin-section-title">🎯 Training Scenario Templates</div>
+            <div class="admin-warning">
+                One-click scenario activation for structured training exercises
+            </div>
+            <div class="scenario-grid">
+                <button class="btn btn-scenario btn-sm" onclick="loadScenario('system-failure')">
+                    System Failure Drill
+                </button>
+                <button class="btn btn-scenario btn-sm" onclick="loadScenario('comm-loss')">
+                    Communication Loss
+                </button>
+                <button class="btn btn-scenario btn-sm" onclick="loadScenario('degraded-mode')">
+                    Degraded Mode Operation
+                </button>
+                <button class="btn btn-scenario btn-sm" onclick="loadScenario('power-fluctuation')">
+                    Power Fluctuation
+                </button>
+                <button class="btn btn-scenario btn-sm" onclick="loadScenario('perfect-conditions')">
+                    Perfect Conditions (Baseline)
+                </button>
+            </div>
+        </div>
+        
         <!-- Training Code Configuration -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-codes">
             <div class="admin-section-title">🔑 Training Code Configuration</div>
             <div class="admin-warning">
                 Set valid authentication codes for training scenarios
@@ -929,7 +1071,7 @@
         </div>
         
         <!-- System Customization -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-customization">
             <div class="admin-section-title">🎨 System Customization</div>
             <div class="admin-control-group">
                 <div class="input-group">
@@ -947,7 +1089,7 @@
         </div>
         
         <!-- Security Settings -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-security">
             <div class="admin-section-title">🔐 Security Settings</div>
             <div class="admin-control-group">
                 <div class="input-group">
@@ -965,7 +1107,7 @@
         </div>
         
         <!-- Diagnostics Control - Runtime Injection -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-diagnostics">
             <div class="admin-section-title">🔧 Diagnostics Control</div>
             <div class="admin-warning">
                 ⚠️ Administrative Override: Changes affect system state without operator action
@@ -987,7 +1129,7 @@
         </div>
         
         <!-- Flow Control - Step Governance -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-flow">
             <div class="admin-section-title">⏸️ Flow Control</div>
             <div class="admin-warning">
                 Step governance: HOLD/RESUME controls freeze operator actions without skipping workflow steps
@@ -1013,7 +1155,7 @@
         </div>
         
         <!-- Lock & Reset Controls -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-locks">
             <div class="admin-section-title">🔒 Lock & Reset Controls</div>
             <div class="admin-warning">
                 Critical controls: Lock actions halt all operator functions; Reset regenerates run_id
@@ -1022,17 +1164,17 @@
                 <button class="btn btn-admin btn-sm" onclick="adminSoftLock()">
                     Soft Lock (Pause Operations)
                 </button>
-                <button class="btn btn-admin btn-sm" onclick="adminHardLock()">
+                <button class="btn btn-admin btn-sm" onclick="adminHardLock()" id="btn-hard-lock">
                     Hard Lock (Requires Restart)
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="adminResetSystem()">
+                <button class="btn btn-danger btn-sm" onclick="adminResetSystem()" id="btn-reset">
                     System Reset (New Run ID)
                 </button>
             </div>
         </div>
         
         <!-- Timing Controls -->
-        <div class="admin-section">
+        <div class="admin-section" id="section-timing">
             <div class="admin-section-title">⏱️ Timing Controls</div>
             <div class="admin-control-group">
                 <div class="input-group">
@@ -1099,6 +1241,29 @@
         </div>
     </div>
     
+    <!-- Role Selection Modal -->
+    <div id="modal-role-select" class="modal-overlay" style="display: none;">
+        <div class="modal-content admin-modal">
+            <div class="modal-header admin-header">SELECT ADMIN ROLE</div>
+            <div class="modal-body">
+                <div class="role-selection">
+                    <button class="role-btn super-admin" onclick="selectRole('super')">
+                        <div class="role-title">🔱 Super Administrator</div>
+                        <div class="role-desc">Full system access including hard locks, resets, and all configurations</div>
+                    </button>
+                    <button class="role-btn trainer" onclick="selectRole('trainer')">
+                        <div class="role-title">🎓 Trainer</div>
+                        <div class="role-desc">Training scenarios, code management, diagnostics injection, soft controls only</div>
+                    </button>
+                    <button class="role-btn observer" onclick="selectRole('observer')">
+                        <div class="role-title">👁️ Observer</div>
+                        <div class="role-desc">Read-only access to system state and audit logs, no control capabilities</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Admin Confirmation Modals -->
     <div id="modal-admin-confirm" class="modal-overlay" style="display: none;">
         <div class="modal-content admin-modal">
@@ -1137,6 +1302,7 @@
             // Administrative state
             adminAuthenticated: false,
             adminPassword: localStorage.getItem('adminPassword') || 'SUPERVISOR',
+            adminRole: null, // 'super', 'trainer', 'observer'
             systemLocked: false,
             lockType: null, // 'soft' or 'hard'
             systemHold: false,
@@ -1155,6 +1321,7 @@
             // Fault injection state
             faultInjected: false,
             adminForcedOutcome: null, // 'GREEN', 'DEGRADED', 'FAILED', or null
+            activeScenario: null,
             
             // Timing controls (writable by admin)
             delayMultiplier: 1.0,
@@ -1180,6 +1347,130 @@
             eventLog: []
         };
         
+        // Training scenario definitions
+        const TRAINING_SCENARIOS = {
+            'system-failure': {
+                name: 'System Failure Drill',
+                description: 'Critical subsystem failures requiring emergency procedures',
+                apply: () => {
+                    RunContext.adminForcedOutcome = 'FAILED';
+                    RunContext.subsystems['PWR-CORE'] = { status: 'DEGRADED', value: '45%' };
+                    RunContext.subsystems['GUID-CTL'] = { status: 'FAILED', value: 'ERROR' };
+                    RunContext.subsystems['THERMAL'] = { status: 'FAILED', value: '85 °C' };
+                }
+            },
+            'comm-loss': {
+                name: 'Communication Loss',
+                description: 'Complete communication system failure scenario',
+                apply: () => {
+                    RunContext.adminForcedOutcome = 'DEGRADED';
+                    RunContext.subsystems['COMM-LINK'] = { status: 'FAILED', value: 'OFFLINE' };
+                    RunContext.subsystems['NAV-SYS'] = { status: 'DEGRADED', value: 'PARTIAL' };
+                }
+            },
+            'degraded-mode': {
+                name: 'Degraded Mode Operation',
+                description: 'Multiple subsystems operating below nominal capacity',
+                apply: () => {
+                    RunContext.adminForcedOutcome = 'DEGRADED';
+                    RunContext.subsystems['PWR-CORE'] = { status: 'DEGRADED', value: '70%' };
+                    RunContext.subsystems['FUEL-SYS'] = { status: 'DEGRADED', value: '2800 PSI' };
+                    RunContext.subsystems['GUID-CTL'] = { status: 'DEGRADED', value: 'BACKUP' };
+                }
+            },
+            'power-fluctuation': {
+                name: 'Power Fluctuation',
+                description: 'Unstable power grid with intermittent failures',
+                apply: () => {
+                    RunContext.adminForcedOutcome = 'DEGRADED';
+                    RunContext.subsystems['PWR-CORE'] = { status: 'DEGRADED', value: '55%' };
+                    RunContext.subsystems['THERMAL'] = { status: 'DEGRADED', value: '45 °C' };
+                }
+            },
+            'perfect-conditions': {
+                name: 'Perfect Conditions (Baseline)',
+                description: 'All systems nominal for baseline training',
+                apply: () => {
+                    RunContext.adminForcedOutcome = 'GREEN';
+                    RunContext.faultInjected = false;
+                }
+            }
+        };
+        
+        // Role-based permission system
+        const ROLE_PERMISSIONS = {
+            super: {
+                scenarios: true,
+                codes: true,
+                customization: true,
+                security: true,
+                diagnostics: true,
+                flow: true,
+                softLock: true,
+                hardLock: true,
+                reset: true,
+                timing: true
+            },
+            trainer: {
+                scenarios: true,
+                codes: true,
+                customization: false,
+                security: false,
+                diagnostics: true,
+                flow: true,
+                softLock: true,
+                hardLock: false,
+                reset: false,
+                timing: true
+            },
+            observer: {
+                scenarios: false,
+                codes: false,
+                customization: false,
+                security: false,
+                diagnostics: false,
+                flow: false,
+                softLock: false,
+                hardLock: false,
+                reset: false,
+                timing: false
+            }
+        };
+        
+        function hasPermission(action) {
+            if (!RunContext.adminAuthenticated || !RunContext.adminRole) return false;
+            return ROLE_PERMISSIONS[RunContext.adminRole][action] === true;
+        }
+        
+        function applyRolePermissions() {
+            if (!RunContext.adminAuthenticated) return;
+            
+            const role = RunContext.adminRole;
+            
+            // Update role badge
+            const badge = document.getElementById('role-badge');
+            badge.textContent = role.toUpperCase();
+            badge.className = `admin-role-badge ${role}`;
+            
+            // Apply permissions to sections
+            document.getElementById('section-scenarios').classList.toggle('locked', !hasPermission('scenarios'));
+            document.getElementById('section-codes').classList.toggle('locked', !hasPermission('codes'));
+            document.getElementById('section-customization').classList.toggle('locked', !hasPermission('customization'));
+            document.getElementById('section-security').classList.toggle('locked', !hasPermission('security'));
+            document.getElementById('section-diagnostics').classList.toggle('locked', !hasPermission('diagnostics'));
+            document.getElementById('section-flow').classList.toggle('locked', !hasPermission('flow'));
+            document.getElementById('section-locks').classList.toggle('locked', !hasPermission('softLock'));
+            document.getElementById('section-timing').classList.toggle('locked', !hasPermission('timing'));
+            
+            // Disable specific high-privilege buttons for trainers
+            if (role === 'trainer') {
+                const hardLockBtn = document.getElementById('btn-hard-lock');
+                const resetBtn = document.getElementById('btn-reset');
+                if (hardLockBtn) hardLockBtn.style.display = 'none';
+                if (resetBtn) resetBtn.style.display = 'none';
+            }
+        }
+        
         function generateRunID() {
             const timestamp = Date.now().toString(36).toUpperCase();
             const random = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -1188,6 +1479,35 @@
         
         function updateRunID() {
             document.getElementById('run-id').textContent = RunContext.run_id;
+        }
+        
+        /* ============================================
+           TRAINING SCENARIO MANAGEMENT
+           ============================================ */
+        
+        function loadScenario(scenarioId) {
+            if (!hasPermission('scenarios')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
+            const scenario = TRAINING_SCENARIOS[scenarioId];
+            if (!scenario) return;
+            
+            // Log scenario activation
+            logEvent('admin', `Loading training scenario: ${scenario.name}`, true);
+            
+            // Apply scenario configuration
+            scenario.apply();
+            RunContext.activeScenario = scenarioId;
+            
+            // If system already initialized, update subsystem display
+            if (RunContext.initialized) {
+                updateSubsystemDisplay();
+            }
+            
+            logEvent('admin', `Scenario "${scenario.name}" activated - ${scenario.description}`, true);
+            updateAdminRunContext();
         }
         
         /* ============================================
@@ -1328,10 +1648,17 @@
             setTimeout(() => {
                 RunContext.initialized = true;
                 
-                // Update subsystems to standby
-                RunContext.subsystems['PWR-CORE'] = { status: 'READY', value: '100%' };
-                RunContext.subsystems['COMM-LINK'] = { status: 'READY', value: 'ACTIVE' };
-                RunContext.subsystems['THERMAL'] = { status: 'READY', value: '22 °C' };
+                // Apply active scenario if present, otherwise default initialization
+                if (RunContext.activeScenario) {
+                    const scenario = TRAINING_SCENARIOS[RunContext.activeScenario];
+                    scenario.apply();
+                    logEvent('info', `Scenario-based initialization: ${scenario.name}`);
+                } else {
+                    // Update subsystems to standby
+                    RunContext.subsystems['PWR-CORE'] = { status: 'READY', value: '100%' };
+                    RunContext.subsystems['COMM-LINK'] = { status: 'READY', value: 'ACTIVE' };
+                    RunContext.subsystems['THERMAL'] = { status: 'READY', value: '22 °C' };
+                }
                 
                 updateSubsystemDisplay();
                 updateOverallStatus('warning', 'STANDBY');
@@ -1370,7 +1697,11 @@
                 // Simulate subsystem checks
                 if (progress === 25) {
                     logEvent('info', 'Navigation system: Acquiring satellite lock...');
-                    RunContext.subsystems['NAV-SYS'] = { status: 'READY', value: 'GPS LOCK' };
+                    if (!RunContext.subsystems['NAV-SYS'].status.includes('FAILED')) {
+                        RunContext.subsystems['NAV-SYS'] = RunContext.subsystems['NAV-SYS'].status === 'DEGRADED' 
+                            ? { status: 'DEGRADED', value: 'PARTIAL' }
+                            : { status: 'READY', value: 'GPS LOCK' };
+                    }
                     updateSubsystemDisplay();
                 }
                 
@@ -1381,11 +1712,11 @@
                 }
                 
                 if (progress === 75) {
-                    // Check for admin-forced outcome
-                    if (RunContext.adminForcedOutcome === 'FAILED') {
-                        logEvent('error', 'Guidance system: CRITICAL FAILURE [ADMIN INJECTED]');
+                    // Check for admin-forced outcome or scenario
+                    if (RunContext.adminForcedOutcome === 'FAILED' || RunContext.subsystems['GUID-CTL'].status === 'FAILED') {
+                        logEvent('error', 'Guidance system: CRITICAL FAILURE' + (RunContext.adminForcedOutcome ? ' [ADMIN INJECTED]' : ''));
                         RunContext.subsystems['GUID-CTL'] = { status: 'FAILED', value: 'ERROR' };
-                    } else if (RunContext.adminForcedOutcome === 'DEGRADED' || RunContext.faultInjected) {
+                    } else if (RunContext.adminForcedOutcome === 'DEGRADED' || RunContext.faultInjected || RunContext.subsystems['GUID-CTL'].status === 'DEGRADED') {
                         logEvent('warning', 'Guidance system: DEGRADED - Manual override available');
                         RunContext.subsystems['GUID-CTL'] = { status: 'DEGRADED', value: 'BACKUP' };
                     } else {
@@ -1393,7 +1724,12 @@
                         RunContext.subsystems['GUID-CTL'] = { status: 'READY', value: 'NOMINAL' };
                     }
                     
-                    RunContext.subsystems['FUEL-SYS'] = { status: 'READY', value: '3500 PSI' };
+                    if (!RunContext.subsystems['FUEL-SYS'].status.includes('FAILED')) {
+                        RunContext.subsystems['FUEL-SYS'].status = RunContext.subsystems['FUEL-SYS'].status === 'DEGRADED'
+                            ? RunContext.subsystems['FUEL-SYS']
+                            : { status: 'READY', value: '3500 PSI' };
+                    }
+                    
                     RunContext.subsystems['PAYLOAD'] = { status: 'READY', value: 'ARMED' };
                     updateSubsystemDisplay();
                 }
@@ -1403,7 +1739,8 @@
                     
                     setTimeout(() => {
                         // Check if diagnostics should pass
-                        const shouldPass = RunContext.adminForcedOutcome !== 'FAILED';
+                        const shouldPass = RunContext.adminForcedOutcome !== 'FAILED' && 
+                                         !Object.values(RunContext.subsystems).some(s => s.status === 'FAILED');
                         
                         RunContext.diagnosticsPassed = shouldPass;
                         updateOverallStatus(shouldPass ? 'ready' : 'error', shouldPass ? 'OPERATIONAL' : 'DEGRADED');
@@ -1415,7 +1752,7 @@
                             document.getElementById('auth-command').disabled = false;
                             document.getElementById('btn-authenticate').disabled = false;
                             
-                            if (RunContext.adminForcedOutcome || RunContext.faultInjected) {
+                            if (RunContext.adminForcedOutcome || RunContext.faultInjected || RunContext.activeScenario) {
                                 logEvent('warning', 'Diagnostics complete with warnings - System operational with degraded subsystems');
                             } else {
                                 logEvent('success', 'All systems nominal - Ready for key authentication');
@@ -1593,8 +1930,10 @@
                 // Key events during countdown
                 if (RunContext.countdownSeconds === 30) {
                     logEvent('warning', 'T-30 seconds - Fuel pressurization initiated');
-                    RunContext.subsystems['FUEL-SYS'] = { status: 'READY', value: '4200 PSI' };
-                    updateSubsystemDisplay();
+                    if (RunContext.subsystems['FUEL-SYS'].status !== 'FAILED') {
+                        RunContext.subsystems['FUEL-SYS'] = { status: 'READY', value: '4200 PSI' };
+                        updateSubsystemDisplay();
+                    }
                 }
                 
                 if (RunContext.countdownSeconds === 20) {
@@ -1669,6 +2008,10 @@
             
             setTimeout(() => {
                 logEvent('success', 'Simulation complete - Training objective achieved');
+                if (RunContext.activeScenario) {
+                    const scenario = TRAINING_SCENARIOS[RunContext.activeScenario];
+                    logEvent('info', `Scenario completed: ${scenario.name}`);
+                }
                 logEvent('info', 'Reload page to reset simulator');
                 RunContext.current_step = 7;
                 updateAdminRunContext();
@@ -1703,18 +2046,30 @@
             
             // Check against stored admin password
             if (passphrase === RunContext.adminPassword) {
-                RunContext.adminAuthenticated = true;
                 document.getElementById('modal-admin-auth').style.display = 'none';
-                document.getElementById('admin-panel').classList.add('open');
-                document.getElementById('admin-indicator').classList.add('active');
                 
-                logEvent('admin', 'Administrator access granted - Supervisory console active', true);
-                updateAdminRunContext();
-                updateAdminLogViewer();
+                // Show role selection modal
+                document.getElementById('modal-role-select').style.display = 'flex';
             } else {
                 alert('Authentication failed - Invalid passphrase');
                 logEvent('warning', 'Administrator authentication attempt failed');
             }
+        }
+        
+        function selectRole(role) {
+            RunContext.adminAuthenticated = true;
+            RunContext.adminRole = role;
+            
+            document.getElementById('modal-role-select').style.display = 'none';
+            document.getElementById('admin-panel').classList.add('open');
+            document.getElementById('admin-indicator').classList.add('active');
+            
+            logEvent('admin', `Administrator access granted - Role: ${role.toUpperCase()}`, true);
+            
+            // Apply role-based permissions
+            applyRolePermissions();
+            updateAdminRunContext();
+            updateAdminLogViewer();
         }
         
         function closeAdminPanel() {
@@ -1728,6 +2083,7 @@
         
         function adminLogout() {
             RunContext.adminAuthenticated = false;
+            RunContext.adminRole = null;
             document.getElementById('admin-panel').classList.remove('open');
             document.getElementById('admin-indicator').classList.remove('active');
             
@@ -1745,7 +2101,9 @@
             const container = document.getElementById('admin-run-context');
             const stateData = {
                 'Run ID': RunContext.run_id,
+                'Admin Role': RunContext.adminRole ? RunContext.adminRole.toUpperCase() : 'N/A',
                 'Current Step': RunContext.current_step,
+                'Active Scenario': RunContext.activeScenario ? TRAINING_SCENARIOS[RunContext.activeScenario].name : 'NONE',
                 'Initialized': RunContext.initialized ? 'YES' : 'NO',
                 'Diagnostics': RunContext.diagnosticsPassed ? 'PASSED' : 'NOT RUN',
                 'Authenticated': RunContext.authenticated ? 'YES' : 'NO',
@@ -1757,10 +2115,7 @@
                 'Admin Outcome': RunContext.adminForcedOutcome || 'NONE',
                 'Delay Mult.': RunContext.delayMultiplier.toFixed(1) + 'x',
                 'Latency': RunContext.latencyEnabled ? 'ON' : 'OFF',
-                'Abort Window': RunContext.countdownAbortable ? 'OPEN' : 'CLOSED',
-                'Code A': RunContext.validCodes.operatorA,
-                'Code B': RunContext.validCodes.operatorB,
-                'Cmd Code': RunContext.validCodes.command
+                'Abort Window': RunContext.countdownAbortable ? 'OPEN' : 'CLOSED'
             };
             
             container.innerHTML = '';
@@ -1784,6 +2139,11 @@
            ============================================ */
         
         function adminUpdateCodes() {
+            if (!hasPermission('codes')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             const codeA = document.getElementById('admin-code-a').value;
             const codeB = document.getElementById('admin-code-b').value;
             const codeCmd = document.getElementById('admin-code-cmd').value;
@@ -1833,6 +2193,11 @@
            ============================================ */
         
         function adminUpdateCustomization() {
+            if (!hasPermission('customization')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             const newTitle = document.getElementById('admin-custom-title').value;
             const newClassification = document.getElementById('admin-custom-classification').value;
             
@@ -1874,6 +2239,11 @@
            ============================================ */
         
         function adminChangePassword() {
+            if (!hasPermission('security')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             const newPassword = document.getElementById('admin-new-password').value;
             const confirmPassword = document.getElementById('admin-confirm-password').value;
             
@@ -1905,6 +2275,11 @@
            ============================================ */
         
         function adminForceDiagnostics() {
+            if (!hasPermission('diagnostics')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             if (RunContext.systemLocked) {
                 alert('Cannot force diagnostics - System is locked');
                 return;
@@ -1923,6 +2298,11 @@
         }
         
         function adminInjectOutcome(outcome) {
+            if (!hasPermission('diagnostics')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             logEvent('admin', `Administrator injecting diagnostics outcome: ${outcome}`, true);
             RunContext.adminForcedOutcome = outcome;
             updateAdminRunContext();
@@ -1934,6 +2314,11 @@
            ============================================ */
         
         function adminHoldSystem() {
+            if (!hasPermission('flow')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             RunContext.systemHold = true;
             logEvent('admin', 'System placed in HOLD - All operator actions suspended', true);
             
@@ -1944,6 +2329,11 @@
         }
         
         function adminResumeSystem() {
+            if (!hasPermission('flow')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             RunContext.systemHold = false;
             logEvent('admin', 'System resumed from HOLD - Operator actions enabled', true);
             
@@ -1987,6 +2377,11 @@
         }
         
         function adminSoftLock() {
+            if (!hasPermission('softLock')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             showAdminConfirm(
                 'SOFT LOCK CONFIRMATION',
                 '<p>Soft lock will pause all operator actions until unlocked.</p><p>System state will be preserved.</p>',
@@ -2001,6 +2396,11 @@
         }
         
         function adminHardLock() {
+            if (!hasPermission('hardLock')) {
+                alert('Access Denied: Insufficient privileges - Super Admin only');
+                return;
+            }
+            
             showAdminConfirm(
                 'HARD LOCK CONFIRMATION',
                 '<p><strong>WARNING:</strong> Hard lock requires full page reload to restart.</p><p>All progress will be lost.</p>',
@@ -2018,6 +2418,11 @@
         }
         
         function adminResetSystem() {
+            if (!hasPermission('reset')) {
+                alert('Access Denied: Insufficient privileges - Super Admin only');
+                return;
+            }
+            
             showAdminConfirm(
                 'SYSTEM RESET CONFIRMATION',
                 '<p><strong>WARNING:</strong> This will reset all system state and generate a new Run ID.</p><p>This action cannot be undone.</p>',
@@ -2043,6 +2448,11 @@
            ============================================ */
         
         function adminUpdateDelayMultiplier(value) {
+            if (!hasPermission('timing')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             const numValue = parseFloat(value);
             RunContext.delayMultiplier = numValue;
             document.getElementById('admin-delay-value').textContent = numValue.toFixed(1) + 'x';
@@ -2051,6 +2461,11 @@
         }
         
         function adminToggleLatency() {
+            if (!hasPermission('timing')) {
+                alert('Access Denied: Insufficient privileges');
+                return;
+            }
+            
             RunContext.latencyEnabled = !RunContext.latencyEnabled;
             const btn = document.getElementById('admin-btn-latency');
             btn.textContent = RunContext.latencyEnabled ? 'Disable Latency Simulation' : 'Enable Latency Simulation';
